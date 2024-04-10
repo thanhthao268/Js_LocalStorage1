@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        ul {
+            display: grid;
+            column-gap: 50px;
+            grid-template-columns: auto auto auto auto;
+            list-style-type: none;
+        }
+
+        li {
+            display: inline-block;
+            padding: 20px;
+            margin-top: 10px;
+            margin-right: 20px;
+            border: 1px solid #bbb;
+            text-align: center;
+        }
+
+        .product-image {
+            height: 200px;
+        }
+
+        .btn-add {
+            background-color: rgb(67, 67, 210);
+            color: #fff;
+            border-radius: 5px;
+        }
+        .btn-add:hover {
+            background: rgb(69, 176, 69);
+        }
+        .btn-remove:hover {
+            background-color: rgb(244, 33, 33);
+        }
+    </style>
+</head>
+<body>
+    <div class="product-list">
+        <h3>Sản phẩm bán chạy</h3>
+        <ul id="products"></ul>
+    </div>
+
+    <div class="list-cart">
+        <h3>Giỏ hàng<span><i class="fa-solid fa-cart-plus"></i></span> </h3>
+        <ul id="cart"></ul>
+    </div>
+
+    <script>
+        var productList = [
+            {
+                id: 1,
+                image: "./image/p1.jpg",
+                name: "Ao dai",
+                price: "89.000"
+            },
+            {
+                id: 2,
+                image: "./image/p2.jpg",
+                name: "Ao dai",
+                price: "138.000"
+            },
+            {
+                id: 3,
+                image: "./image/p3.jpg",
+                name: "Ao dai",
+                price: "200.000"
+            },
+            {
+                id: 4,
+                image: "./image/p3.jpg",
+                name: "Ao dai",
+                price: "250.000"
+            }
+        ];
+
+        var productElement = document.getElementById("products");
+        var productCart = JSON.parse(localStorage.getItem("productCart")) || [];
+        var cartElement = document.getElementById('cart');
+
+        function addToCart(id) {
+            for (let item of productList) {
+                if (item.id == id) {
+                    if (isExistOnCart(id) === true) {
+                        for (cartItem of productCart) {
+                            if (cartItem.id == id) {
+                                cartItem.quantity++;
+                            }
+                        }
+                    } else {
+                        productCart.push({
+                            id: id,
+                            image: item.image,
+                            name: item.name,
+                            price: item.price,
+                            quantity: 1
+                        });
+                    }
+                }
+            }
+            localStorage.setItem("productCart", JSON.stringify(productCart));
+            reRenderCart();
+        }
+
+        function removeFromCart(id) {
+            for (let i = 0; i < productCart.length; i++) {
+                if (productCart[i].id == id) {
+                    if (productCart[i].quantity > 1) {
+                        productCart[i].quantity--;
+                    } else {
+                        productCart.splice(i, 1);
+                    }
+                }
+            }
+            localStorage.setItem("productCart", JSON.stringify(productCart));
+            reRenderCart();
+        }
+
+        function isExistOnCart(id) {
+            for (item of productCart) {
+                if (item.id === id) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function reRenderCart() {
+            cartElement.innerHTML = '';
+            for (cartItem of productCart) {
+                cartElement.innerHTML += `
+                <li>
+                    <p><img src='${cartItem.image}' height="200px" class="product-image"></p>
+                    <h5>${cartItem.name}</h5>
+                    <p>Giá: ${cartItem.price}</p>
+                    <p>Số lượng: ${cartItem.quantity}</p>
+                    <button class="btn-remove" type="button" onclick="removeFromCart('${cartItem.id}')"><i class="fa-solid fa-trash-can"></i></button>
+                </li>
+                `;
+            }
+        }
+
+        function reRenderProduct() {
+            productElement.innerHTML = '';
+            for (item of productList) {
+                productElement.innerHTML += `
+                <li>
+                    <p><img src='${item.image}' height="200px" class="product-image"></p>
+                    <h5>${item.name}</h5>
+                    <p>${item.price}</p>
+                    <button class="btn-add" type="button" onclick="addToCart('${item.id}')">Đặt mua</button>
+                </li>
+                `;
+            }
+        }
+
+        reRenderProduct();
+        reRenderCart();
+    </script>
+</body>
+</html>
